@@ -1,5 +1,6 @@
 from Model import Player as pl
-#enlever les managers qui ne rajoutent pas grand chose on peut directement faire ça dans le main soit dans le tournoi manager
+# enlever les managers qui ne rajoutent pas grand chose on peut directement faire ça dans le main soit dans le tournoi manager
+
 
 class PlayerManager:
     def __init__(self, list_players: list):
