@@ -1,6 +1,8 @@
 from Controller import InputChecker as ic
 from datetime import date as da
 
+import os
+
 
 class TournamentView:
     def create_tournament_menu(self):
@@ -19,3 +21,13 @@ class TournamentView:
                 "time": time,
                 "description": description
                 }
+
+    def print_tournament_menu(self):
+        os.system('cls')
+        print("[1] créer un joueur")
+        print("[2] chercher un joueur")
+        print("[3] afficher la liste des inscris au tournoi")
+        print("[4] créer un round")
+        print("[5] sortir")
+
+        return ic.check_number_input("choix: ")

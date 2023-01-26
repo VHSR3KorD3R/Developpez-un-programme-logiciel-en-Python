@@ -20,3 +20,13 @@ class PlayerView:
     def player_not_found(self):
         print("Joueur non trouvé")
         return ic.check_yes_no_input("Voulez-vous en créer un? O: Oui N: Non")
+
+    def print_list_players(self, list_players):
+        i = 1
+        for player in list_players:
+            print("[" + str(i) + "]" + str(player))
+            i += 1
+
+    def get_player_indice(self, list_players):
+        label = "Veuillez entrer le nombre correspondant au joueur à inscrire"
+        return ic.check_number_input(label)

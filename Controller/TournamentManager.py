@@ -1,4 +1,6 @@
 import random
+from datetime import date as da
+
 from Model import Tournament as to, Player as pl, Match as ma, Round as ro
 from View.PlayerView import PlayerView
 from View.TournamentView import TournamentView
@@ -16,14 +18,13 @@ class TournamentManager:
     def create_list_players(self):
         list_players = []
         for i in range(8):
-            tmp_list = []
-            player = pl.Player("firstname " + str(i),
+            player = pl.Player("firstname" + str(i),
                                "last_name" + str(i),
                                "01/01/1970",
                                random.randint(1, 2000))
-            tmp_list.append(player)
-            tmp_list.append(0)
-            list_players.append(tmp_list)
+            list_players.append(player)
+        player = pl.Player("x", "last_name1", "01/01/1970", random.randint(1,2000))
+        list_players.append(player)
         return list_players
 
     def create_first_round(self, name, start_time, nb_players):
@@ -72,36 +73,65 @@ class TournamentManager:
         self.tournament.list_rounds.append(n_round)
 
     def create_player(self, player_info):
-        tmp_list = []
         player = pl.Player(player_info["first_name"],
                            player_info["last_name"],
                            player_info["birthdate"],
                            player_info["elo"])
-        tmp_list.append(player)
-        tmp_list.append(0)
-        return tmp_list
+        return player
 
     def find_player(self, list_players, player_view):
         last_name = player_view.search_for_player()
         search_results = []
         for player in list_players:
-            if player[0].last_name == last_name:
+            if player.last_name == last_name:
                 search_results.append(player)
-                print(search_results)
         if not search_results:
             if player_view.player_not_found() == 'O':
                 player_info = player_view.create_player_menu()
                 self.create_player(player_info)
-            else:
-                return 0
+        else:
+            player_view.print_list_players(search_results)
+            indice = player_view.get_player_indice(search_results)
+            return search_results[indice - 1]
+
+    def show_tournament_menu(self, list_players_static, tournament_view):
+        choice = tournament_view.print_tournament_menu()
+        if choice == 1:
+            player_view = PlayerView()
+            player_info = player_view.create_player_menu()
+            player = self.create_player(player_info)
+            self.tournament.list_players.append([player, 0])
+            list_players_static.append(player)
+            return self.show_tournament_menu(list_players_static, tournament_view)
+        elif choice == 2:
+            player_view = PlayerView()
+            player = self.find_player(list_players_static, player_view)
+            self.tournament.list_players.append([player, 0])
+            return self.show_tournament_menu(list_players_static, tournament_view)
+        elif choice == 3:
+            print(self.tournament.list_players)
+            for player, score in self.tournament.list_players:
+                print(player)
+            return self.show_tournament_menu(list_players_static, tournament_view)
+        elif choice == 4:
+            nb_rounds = self.tournament.turns
+            for i in nb_rounds:
+                if i == 0:
+                    today = da.today()
+                    date = today.strftime("%d/%m/%Y")
+                    self.create_first_round("premier round", date, 8)
+                else:
+                    self.create_rounds()
+        elif choice == 5:
+            return 0
 
     def run(self):
         list_players_static = self.create_list_players()
         for player in list_players_static:
-            print(player[0].last_name)
+            print(player.last_name)
         while True:
             choice = self.view.print_menu()
-            if choice == "1":
+            if choice == 1:
                 tournament_view = TournamentView()
                 tournament_info = tournament_view.create_tournament_menu()
                 self.tournament = to.Tournament(tournament_info["name"],
@@ -110,10 +140,20 @@ class TournamentManager:
                                                 tournament_info["turns"],
                                                 tournament_info["time"],
                                                 tournament_info["description"])
-                player_view = PlayerView()
-                self.find_player(list_players_static, player_view)
+                self.show_tournament_menu(list_players_static, tournament_view)
 
-            elif choice == "2":
+            elif choice == 2:
                 player_view = PlayerView()
                 player_info = player_view.create_player_menu()
-                self.create_player(player_info)
+                player = self.create_player(player_info)
+                list_players_static.append(player)
+
+            elif choice == 3:
+                for player in list_players_static:
+                    print(player)
+
+            elif choice == 4:
+                if self.tournament is not None:
+                    print(self.tournament)
+                else:
+                    print("pas de tournois crée")

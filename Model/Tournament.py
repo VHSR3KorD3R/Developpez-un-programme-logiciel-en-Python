@@ -27,3 +27,11 @@ class Tournament:
                 return index
         return -1
 
+    def __str__(self):
+        return f"name : {self.name}\n" \
+               f"location: {self.location}\n" \
+               f"date: {self.date}\n" \
+               f"turns : {self.turns}\n" \
+               f"time : {self.time}\n" \
+               f"description : {self.description}\n"
+
