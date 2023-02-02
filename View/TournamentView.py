@@ -55,8 +55,6 @@ class TournamentView:
             players1 += player1 + "."
             players2 += player2 + "."
 
-        print(players1)
-        print(players2)
         max_player1_length = max(map(len, players1.strip().split(".")))
         max_player2_length = max(map(len, players2.strip().split(".")))
 
@@ -78,11 +76,7 @@ class TournamentView:
         print(players2_scores)
         print("\n")
 
-
     def print_ranking(self, list_player):
-        print('vainqueur:')
-        print(list_player[0][-1])
-
         for player in list_player:
             print(player[0])
-
+            print("score: " + str(player[1]))

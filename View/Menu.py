@@ -1,6 +1,7 @@
 import os
 from Controller import InputChecker as ic
 
+
 class Menu:
 
     def print_menu(self):
@@ -16,4 +17,3 @@ class Menu:
             os.system('cls')
             self.print_menu()
         return choice
-

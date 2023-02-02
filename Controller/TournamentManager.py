@@ -25,7 +25,7 @@ class TournamentManager:
                                "01/01/1970",
                                random.randint(1, 2000))
             list_players.append(player)
-        player = pl.Player("x", "last_name1", "01/01/1970", random.randint(1,2000))
+        player = pl.Player("x", "last_name1", "01/01/1970", random.randint(1, 2000))
         list_players.append(player)
         return list_players
 
@@ -57,8 +57,8 @@ class TournamentManager:
                         self.tournament.list_players) - 2:
                     i += 1
                 if (self.tournament.list_players[j + 1][0] in list_players_matched or
-                    self.tournament.list_players[i][0] == self.tournament.list_players[j + 1][0]) and j < len(
-                    self.tournament.list_players) - 2:
+                    self.tournament.list_players[i][0] == self.tournament.list_players[j + 1][0]) and j < \
+                        len(self.tournament.list_players) - 2:
                     j += 1
                 if self.tournament.list_players[i][0] not in self.tournament.list_players[j + 1][0].already_met:
                     match = ma.Match(self.tournament.list_players[i][0], self.tournament.list_players[j + 1][0], 0, 0)
@@ -115,7 +115,7 @@ class TournamentManager:
             return self.show_tournament_menu(list_players_static, tournament_view)
         elif choice == 3:
             for player, score in self.tournament.list_players:
-                print(player) # A CHANGER
+                print(player)  # A CHANGER
             return self.show_tournament_menu(list_players_static, tournament_view)
         elif choice == 4:
             nb_rounds = self.tournament.turns
@@ -168,12 +168,8 @@ class TournamentManager:
             self.tournament.sort_player_by_score()
             tournament_view.print_ranking(self.tournament.list_players)
 
-
         elif choice == 0:
             return 0
-
-    def round_editor(self):
-        return 0
 
     def run(self):
         list_players_static = self.create_list_players()

@@ -7,7 +7,8 @@ class Tournament:
         self.turns = turns
         self.list_rounds = []
         self.list_players = []
-        # plutot mettre le score d'un joueur dans la classe tournoi pour conserver le score entre chaque tournoi contrairement à la classe player dans lequel elle ne serai pas stocké
+        # plutot mettre le score d'un joueur dans la classe tournoi pour conserver le score entre chaque tournoi
+        # contrairement à la classe player dans lequel elle ne serai pas stocké
         self.time = time
         self.description = description
 
@@ -39,7 +40,8 @@ class Tournament:
                f"time: {self.time}\n" \
                f"description : {self.description}\n"
 
-    def check_if_player_exists(self, player_to_check): #vérifie si le joueur existe déjà dans un tournoi
+    # vérifie si le joueur existe déjà dans un tournoi
+    def check_if_player_exists(self, player_to_check):
         if self.list_players is not None:
             for player in self.list_players:
                 if player[0] == player_to_check:

@@ -13,7 +13,6 @@ class Player:
                f"elo : {self.elo}\n"
 
     def __eq__(self, other):
-        print("__eq__ is called")
         if isinstance(other, Player):
             return self.first_name == other.first_name and \
                    self.last_name == other.last_name and \
