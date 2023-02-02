@@ -10,6 +10,8 @@ class TournamentManager:
     def __init__(self, view):
         self.tournament = None
         self.view = view
+        self.current_turn = 0
+        self.static_list_players = self.create_list_players()
 
     def create_tournament(self, name, location, date, turns, time, description):
         self.tournament = to.Tournament(name, location, date, turns, time, description)
@@ -17,7 +19,7 @@ class TournamentManager:
 
     def create_list_players(self):
         list_players = []
-        for i in range(8):
+        for i in range(7):
             player = pl.Player("firstname" + str(i),
                                "last_name" + str(i),
                                "01/01/1970",
@@ -30,14 +32,14 @@ class TournamentManager:
     def create_first_round(self, name, start_time, nb_players):
         first_round = ro.Round(name, start_time)
         self.tournament.sort_players_by_elo()
-        half_nb_players = len(nb_players) // 2
+        half_nb_players = nb_players // 2
         list_match = []
         for i in range(half_nb_players):
             player1 = self.tournament.list_players[i][0]
             player2 = self.tournament.list_players[half_nb_players + i][0]
             match = ma.Match(player1, player2, 0, 0)
-            player1.add_already_met_list(player2)
-            player2.add_already_met_list(player1)
+            player1.already_met.append(player2)
+            player2.already_met.append(player1)
             list_match.append(match)
         first_round.list_match = list_match
         self.tournament.list_rounds.append(first_round)
@@ -92,7 +94,11 @@ class TournamentManager:
         else:
             player_view.print_list_players(search_results)
             indice = player_view.get_player_indice(search_results)
-            return search_results[indice - 1]
+            player_selected = search_results[indice - 1]
+            if self.tournament.check_if_player_exists(player_selected):
+                player_view.print_already_exists_player()
+            else:
+                self.tournament.list_players.append([player_selected, 0])
 
     def show_tournament_menu(self, list_players_static, tournament_view):
         choice = tournament_view.print_tournament_menu()
@@ -105,25 +111,69 @@ class TournamentManager:
             return self.show_tournament_menu(list_players_static, tournament_view)
         elif choice == 2:
             player_view = PlayerView()
-            player = self.find_player(list_players_static, player_view)
-            self.tournament.list_players.append([player, 0])
+            self.find_player(list_players_static, player_view)
             return self.show_tournament_menu(list_players_static, tournament_view)
         elif choice == 3:
-            print(self.tournament.list_players)
             for player, score in self.tournament.list_players:
-                print(player)
+                print(player) # A CHANGER
             return self.show_tournament_menu(list_players_static, tournament_view)
         elif choice == 4:
             nb_rounds = self.tournament.turns
-            for i in nb_rounds:
-                if i == 0:
+            if self.current_turn < nb_rounds:
+                if self.current_turn == 0:
                     today = da.today()
                     date = today.strftime("%d/%m/%Y")
-                    self.create_first_round("premier round", date, 8)
+                    nb_players = len(self.tournament.list_players)
+                    self.create_first_round("premier round", date, nb_players)
                 else:
-                    self.create_rounds()
+                    today = da.today()
+                    date = today.strftime("%d/%m/%Y")
+                    self.create_rounds("round " + str(self.current_turn + 1), date)
+
+            tournament_view.print_list_match(self.tournament.list_rounds[self.current_turn].list_match)
+            return self.show_tournament_menu(list_players_static, tournament_view)
         elif choice == 5:
+            for match in self.tournament.list_rounds[self.current_turn].list_match:
+                player1_fullname = match.player1.last_name + " " + match.player1.first_name
+                player2_fullname = match.player2.last_name + " " + match.player2.first_name
+                choice = tournament_view.print_round_editor(player1_fullname, player2_fullname)
+                if choice == 1:
+                    match.player1_score = 1
+                    match.player2_score = 0
+                    for player in self.tournament.list_players:
+                        if player[0] == match.player1:
+                            player[1] += 1
+                            break
+
+                elif choice == 2:
+                    match.player1_score = 0
+                    match.player2_score = 1
+                    for player in self.tournament.list_players:
+                        if player[0] == match.player1:
+                            player[1] += 1
+                            break
+
+                elif choice == 3:
+                    match.player1_score = 0.5
+                    match.player2_score = 0.5
+                    for player in self.tournament.list_players:
+                        if player[0] == match.player1:
+                            player[1] += 1
+                        elif player[1] == match.player2:
+                            player[1] += 1
+            self.current_turn += 1
+            return self.show_tournament_menu(list_players_static, tournament_view)
+
+        elif choice == 6:
+            self.tournament.sort_player_by_score()
+            tournament_view.print_ranking(self.tournament.list_players)
+
+
+        elif choice == 0:
             return 0
+
+    def round_editor(self):
+        return 0
 
     def run(self):
         list_players_static = self.create_list_players()
@@ -140,8 +190,9 @@ class TournamentManager:
                                                 tournament_info["turns"],
                                                 tournament_info["time"],
                                                 tournament_info["description"])
+                for player in list_players_static:
+                    self.tournament.list_players.append([player, 0])
                 self.show_tournament_menu(list_players_static, tournament_view)
-
             elif choice == 2:
                 player_view = PlayerView()
                 player_info = player_view.create_player_menu()

@@ -12,10 +12,8 @@ class Player:
                f"birthdate: {self.birthdate}\n" \
                f"elo : {self.elo}\n"
 
-    def add_already_met_list(self, player):
-        self.already_met.append(player)
-
     def __eq__(self, other):
+        print("__eq__ is called")
         if isinstance(other, Player):
             return self.first_name == other.first_name and \
                    self.last_name == other.last_name and \

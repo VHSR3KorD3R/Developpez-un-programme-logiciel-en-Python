@@ -6,7 +6,7 @@ class Match:
         self.player2_score = player2_score
 
     def __str__(self):
-        return f"player1 : {self.player1.first_name}\n" \
-               f"player2: {self.player2.first_name}\n" \
+        return f"player1: {self.player1.first_name} {self.player1.last_name}\n" \
+               f"player2: {self.player2.first_name} {self.player2.last_name}\n" \
                f"player1_score: {self.player1_score}\n" \
-               f"player2_score : {self.player2_score}\n"
+               f"player2_score: {self.player2_score}"

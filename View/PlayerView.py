@@ -30,3 +30,8 @@ class PlayerView:
     def get_player_indice(self, list_players):
         label = "Veuillez entrer le nombre correspondant au joueur à inscrire"
         return ic.check_number_input(label)
+
+    def print_already_exists_player(self):
+        print()
+        print("Le joueur est déja inscrit au tournoi")
+        print()

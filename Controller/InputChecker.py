@@ -4,7 +4,7 @@ from datetime import datetime
 
 def check_user_input(label):
     string = input(label)
-    if not bool(re.match('^[a-zA-Z]*$', string)):
+    if not bool(re.match('^[a-zA-Z]*$', string)) or string == '':
         print("la chaîne de caractères contient des chiffres ou des caratères spéciaux")
         return check_user_input(label)
     return string
@@ -22,7 +22,7 @@ def check_date_input(label):
 
 def check_number_input(label):
     number = input(label)
-    if not bool(re.match('^[0-9]*$', number)):
+    if not bool(re.match('^[0-9]*$', number)) or number == '':
         print("veuillez entrer un nombre")
         return check_number_input(label)
     return int(number)
