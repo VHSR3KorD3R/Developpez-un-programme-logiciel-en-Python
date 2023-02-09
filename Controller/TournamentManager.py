@@ -81,7 +81,8 @@ class TournamentManager:
                            player_info["elo"])
         return player
 
-    def find_player(self, list_players, player_view):
+    def find_player(self, list_players):
+        player_view = PlayerView()
         last_name = player_view.search_for_player()
         search_results = []
         for player in list_players:
@@ -110,12 +111,11 @@ class TournamentManager:
             list_players_static.append(player)
             return self.show_tournament_menu(list_players_static, tournament_view)
         elif choice == 2:
-            player_view = PlayerView()
-            self.find_player(list_players_static, player_view)
+            self.find_player(list_players_static)
             return self.show_tournament_menu(list_players_static, tournament_view)
         elif choice == 3:
-            for player, score in self.tournament.list_players:
-                print(player)  # A CHANGER
+            self.tournament.sort_player_by_name()
+            tournament_view.print_ranking(self.tournament.list_players)
             return self.show_tournament_menu(list_players_static, tournament_view)
         elif choice == 4:
             nb_rounds = self.tournament.turns
@@ -133,48 +133,50 @@ class TournamentManager:
             tournament_view.print_list_match(self.tournament.list_rounds[self.current_turn].list_match)
             return self.show_tournament_menu(list_players_static, tournament_view)
         elif choice == 5:
-            for match in self.tournament.list_rounds[self.current_turn].list_match:
-                player1_fullname = match.player1.last_name + " " + match.player1.first_name
-                player2_fullname = match.player2.last_name + " " + match.player2.first_name
-                choice = tournament_view.print_round_editor(player1_fullname, player2_fullname)
-                if choice == 1:
-                    match.player1_score = 1
-                    match.player2_score = 0
-                    for player in self.tournament.list_players:
-                        if player[0] == match.player1:
-                            player[1] += 1
-                            break
+            if self.tournament.list_rounds or self.current_turn == 4:
+                for match in self.tournament.list_rounds[self.current_turn].list_match:
+                    player1_fullname = match.player1.last_name + " " + match.player1.first_name
+                    player2_fullname = match.player2.last_name + " " + match.player2.first_name
+                    choice = tournament_view.print_round_editor(player1_fullname, player2_fullname)
+                    if choice == 1:
+                        match.player1_score = 1
+                        match.player2_score = 0
+                        for player in self.tournament.list_players:
+                            if player[0] == match.player1:
+                                player[1] += 1
+                                break
 
-                elif choice == 2:
-                    match.player1_score = 0
-                    match.player2_score = 1
-                    for player in self.tournament.list_players:
-                        if player[0] == match.player1:
-                            player[1] += 1
-                            break
+                    elif choice == 2:
+                        match.player1_score = 0
+                        match.player2_score = 1
+                        for player in self.tournament.list_players:
+                            if player[0] == match.player1:
+                                player[1] += 1
+                                break
 
-                elif choice == 3:
-                    match.player1_score = 0.5
-                    match.player2_score = 0.5
-                    for player in self.tournament.list_players:
-                        if player[0] == match.player1:
-                            player[1] += 1
-                        elif player[1] == match.player2:
-                            player[1] += 1
-            self.current_turn += 1
+                    elif choice == 3:
+                        match.player1_score = 0.5
+                        match.player2_score = 0.5
+                        for player in self.tournament.list_players:
+                            if player[0] == match.player1:
+                                player[1] += 0.5
+                            elif player[1] == match.player2:
+                                player[1] += 0.5
+                self.current_turn += 1
             return self.show_tournament_menu(list_players_static, tournament_view)
 
         elif choice == 6:
-            self.tournament.sort_player_by_score()
+            self.tournament.sort_player_by_name()
             tournament_view.print_ranking(self.tournament.list_players)
+            return self.show_tournament_menu(list_players_static, tournament_view)
 
         elif choice == 0:
             return 0
 
     def run(self):
         list_players_static = self.create_list_players()
-        for player in list_players_static:
-            print(player.last_name)
+        # for player in list_players_static:
+        #     print(player.last_name)
         while True:
             choice = self.view.print_menu()
             if choice == 1:
@@ -196,8 +198,8 @@ class TournamentManager:
                 list_players_static.append(player)
 
             elif choice == 3:
-                for player in list_players_static:
-                    print(player)
+                player_view = PlayerView()
+                player_view.print_list_players(list_players_static)
 
             elif choice == 4:
                 if self.tournament is not None:

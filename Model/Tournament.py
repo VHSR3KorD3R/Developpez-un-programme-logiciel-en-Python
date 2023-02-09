@@ -22,6 +22,9 @@ class Tournament:
     def sort_player_by_score(self):
         self.list_players.sort(key=lambda x: x[1])
 
+    def sort_player_by_name(self):
+        self.list_players.sort(key=lambda x: x[0].last_name)
+
     def update_player_score(self, player, score):
         index = self.get_index(player)
         self.list_players[index][1] += score
@@ -30,7 +33,7 @@ class Tournament:
         for index, x in enumerate(self.list_players):
             if x[0] == target:
                 return index
-        return -1
+        return None
 
     def __str__(self):
         return f"name : {self.name}\n" \

@@ -22,19 +22,18 @@ class TournamentView:
                 }
 
     def print_tournament_menu(self):
-        os.system('cls')
         print("[1] créer un joueur")
         print("[2] chercher un joueur")
         print("[3] afficher la liste des inscris au tournoi")
         print("[4] créer un round")
-        print("[5] éditer le round en cours")
+        print("[5] saisir les résultats du round en cours")
         print("[6] voir le classment")
         print("[0] sortir")
 
         return ic.check_number_input("choix: ")
 
     def print_round_editor(self, player1_name, player2_name):
-        print("sélectionnez le vinqueur du match:")
+        print("sélectionnez le vainqueur du match:")
         print("[1] " + player1_name)
         print("[2] " + player2_name)
         print("ou alors [3] pour match nul")
