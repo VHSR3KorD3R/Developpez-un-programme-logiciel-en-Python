@@ -1,6 +1,9 @@
 import random
 from datetime import date as da
 
+from tinydb import Query
+
+from Controller import db
 from Model import Tournament as to, Player as pl, Match as ma, Round as ro
 from View.PlayerView import PlayerView
 from View.TournamentView import TournamentView
@@ -23,9 +26,10 @@ class TournamentManager:
             player = pl.Player("firstname" + str(i),
                                "last_name" + str(i),
                                "01/01/1970",
+                               "F",
                                random.randint(1, 2000))
             list_players.append(player)
-        player = pl.Player("x", "last_name1", "01/01/1970", random.randint(1, 2000))
+        player = pl.Player("x", "last_name1", "01/01/1970", "M", random.randint(1, 2000))
         list_players.append(player)
         return list_players
 
@@ -78,6 +82,7 @@ class TournamentManager:
         player = pl.Player(player_info["first_name"],
                            player_info["last_name"],
                            player_info["birthdate"],
+                           player_info["gender"],
                            player_info["elo"])
         return player
 
@@ -101,6 +106,31 @@ class TournamentManager:
             else:
                 self.tournament.list_players.append([player_selected, 0])
 
+    def find_player_in_db(self):
+        player_view = PlayerView()
+        last_name = player_view.search_for_player()
+        query = Query()
+        list_players_serialized = db.players().search(query.last_name == last_name)
+        print(list_players_serialized)
+        search_results = []
+        for player_serialized in list_players_serialized:
+            player = pl.Player.deserialize(player_serialized, player_serialized)
+            search_results.append(player)
+        if not search_results:
+            if player_view.player_not_found() == 'O':
+                player_info = player_view.create_player_menu()
+                player = self.create_player(player_info)
+                db.players().insert(player.serialize())
+        else:
+            player_view.print_list_players(search_results)
+            indice = player_view.get_player_indice(search_results)
+            player_selected = search_results[indice - 1]
+            if self.tournament.check_if_player_exists(player_selected):
+                player_view.print_already_exists_player()
+            else:
+                self.tournament.list_players.append([player_selected, 0])
+
+
     def show_tournament_menu(self, list_players_static, tournament_view):
         choice = tournament_view.print_tournament_menu()
         if choice == 1:
@@ -111,7 +141,8 @@ class TournamentManager:
             list_players_static.append(player)
             return self.show_tournament_menu(list_players_static, tournament_view)
         elif choice == 2:
-            self.find_player(list_players_static)
+            # self.find_player(list_players_static)
+            self.find_player_in_db()
             return self.show_tournament_menu(list_players_static, tournament_view)
         elif choice == 3:
             self.tournament.sort_player_by_name()
@@ -195,6 +226,7 @@ class TournamentManager:
                 player_view = PlayerView()
                 player_info = player_view.create_player_menu()
                 player = self.create_player(player_info)
+                db.players().insert(player.serialize())
                 list_players_static.append(player)
 
             elif choice == 3:

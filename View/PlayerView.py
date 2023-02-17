@@ -6,11 +6,13 @@ class PlayerView:
         first_name = ic.check_user_input("Prénom du joueur")
         last_name = ic.check_user_input("Nom du joueur")
         birthdate = ic.check_date_input("Date de naissance")
+        gender = ic.check_user_input("Genre du joueur")
         elo = ic.check_number_input("Classement du joueur")
         return {
             "first_name": first_name,
             "last_name": last_name,
-            "birthdate": birthdate,
+            "birthdate": birthdate.strftime("%d/%m/%Y"),
+            "gender": gender,
             "elo": elo}
 
     def search_for_player(self):
