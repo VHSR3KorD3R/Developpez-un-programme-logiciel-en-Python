@@ -15,3 +15,7 @@ def players():
     db = connect()
     return db.table("players")
 
+def tournaments():
+    db = connect()
+    return db.table("tournaments")
+

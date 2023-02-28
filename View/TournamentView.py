@@ -79,3 +79,14 @@ class TournamentView:
         for player in list_player:
             print(player[0])
             print("score: " + str(player[1]))
+
+    def print_ongoing_tournament(self, list_ongoing_tournament):
+        i = 1
+        for tournament in list_ongoing_tournament:
+            print("[" + str(i) + "]" + str(tournament["name"]))
+            i += 1
+
+    def get_tournament_indice(self):
+        label = "Veuillez entrer le nombre correspondant au tournoi"
+        return ic.check_number_input(label)
+

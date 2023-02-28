@@ -8,9 +8,10 @@ class Menu:
         print("Menu")
         print()
         print("[1] Créer un tournoi")
-        print("[2] Créer un joueur")
-        print("[3] Afficher les joueurs")
-        print("[4] Afficher les tournois")
+        print("[2] Reprendre un tournoi")
+        print("[3] Créer un joueur")
+        print("[4] Afficher les joueurs")
+        print("[5] Afficher les tournois")
 
         choice = ic.check_number_input("choix: ")
         if int(choice) > 5:

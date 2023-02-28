@@ -29,7 +29,7 @@ class PlayerView:
             print("[" + str(i) + "]" + str(player))
             i += 1
 
-    def get_player_indice(self, list_players):
+    def get_player_indice(self):
         label = "Veuillez entrer le nombre correspondant au joueur à inscrire"
         return ic.check_number_input(label)
 
