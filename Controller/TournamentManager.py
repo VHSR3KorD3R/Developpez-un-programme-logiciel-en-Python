@@ -144,8 +144,11 @@ class TournamentManager:
             self.find_player_in_db()
             return self.show_tournament_menu(list_players_static, tournament_view)
         elif choice == 3:
-            self.tournament.sort_player_by_name()
-            tournament_view.print_ranking(self.tournament.list_players)
+            if self.tournament.list_players is not None:
+                self.tournament.sort_player_by_name()
+                tournament_view.print_ranking(self.tournament.list_players)
+            else:
+                print("pas de joueurs encore inscrit")
             return self.show_tournament_menu(list_players_static, tournament_view)
         elif choice == 4:
             nb_rounds = self.tournament.turns
@@ -154,7 +157,7 @@ class TournamentManager:
                     today = da.today()
                     date = today.strftime("%d/%m/%Y")
                     nb_players = len(self.tournament.list_players)
-                    self.create_first_round("premier round", date, nb_players)
+                    self.create_first_round("round 1", date, nb_players)
                 else:
                     today = da.today()
                     date = today.strftime("%d/%m/%Y")
@@ -163,7 +166,7 @@ class TournamentManager:
             tournament_view.print_list_match(self.tournament.list_rounds[self.tournament.current_turn].list_match)
             return self.show_tournament_menu(list_players_static, tournament_view)
         elif choice == 5:
-            if self.tournament.list_rounds or self.tournament.current_turn == 4:
+            if self.tournament.list_rounds or self.tournament.current_turn == self.tournament.turns:
                 for match in self.tournament.list_rounds[self.tournament.current_turn].list_match:
                     player1_fullname = match.player1.last_name + " " + match.player1.first_name
                     player2_fullname = match.player2.last_name + " " + match.player2.first_name
@@ -199,11 +202,12 @@ class TournamentManager:
             return self.show_tournament_menu(list_players_static, tournament_view)
 
         elif choice == 6:
-            self.tournament.sort_player_by_name()
+            self.tournament.sort_player_by_score()
             tournament_view.print_ranking(self.tournament.list_players)
             return self.show_tournament_menu(list_players_static, tournament_view)
 
         elif choice == 0:
+            db.tournaments().update(self.tournament.serialize(), doc_ids=[self.tournament.id])
             return 0
 
     def run(self):
@@ -221,8 +225,8 @@ class TournamentManager:
                                                 tournament_info["turns"],
                                                 tournament_info["time"],
                                                 tournament_info["description"])
-                for player in list_players_static:
-                    self.tournament.list_players.append([player, 0])
+                # for player in list_players_static:
+                #     self.tournament.list_players.append([player, 0])
                 tournament_id = db.tournaments().insert(self.tournament.serialize())
                 self.tournament.id = tournament_id
                 self.show_tournament_menu(list_players_static, tournament_view)
@@ -244,11 +248,17 @@ class TournamentManager:
                 list_players_static.append(player)
 
             elif choice == 4:
-                player_view = PlayerView()
-                player_view.print_list_players(list_players_static)
+                players = db.players().all()
+                if players is not None:
+                    player_view = PlayerView()
+                    player_view.print_list_player(players)
+                else:
+                    print("pas de joueurs crée")
 
             elif choice == 5:
-                if self.tournament is not None:
-                    print(self.tournament)
+                tournaments = db.tournaments().all()
+                if tournaments is not None:
+                    tournament_view = TournamentView()
+                    tournament_view.print_tournament_list(tournaments)
                 else:
                     print("pas de tournois crée")

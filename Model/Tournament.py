@@ -13,15 +13,13 @@ class Tournament:
                  description,
                  id=None,
                  is_ongoing=True,
-                 current_turn=0,
-                 list_players=None,
-                 list_rounds=None):
+                 current_turn=0):
         self.name = name
         self.location = location
         self.date = date
         self.turns = turns
-        self.list_rounds = list_rounds
-        self.list_players = list_players
+        self.list_rounds = []
+        self.list_players = []
         # plutot mettre le score d'un joueur dans la classe tournoi pour conserver le score entre chaque tournoi
         # contrairement à la classe player dans lequel elle ne serai pas stocké
         self.time = time
@@ -32,17 +30,19 @@ class Tournament:
 
     def serialize(self):
         serialized_list_rounds = []
-        for round in self.list_rounds:
-            serialized_list_rounds.append(round.serialize())
+        if self.list_rounds is not None:
+            for round in self.list_rounds:
+                serialized_list_rounds.append(round.serialize())
 
         id_list_players = []
-        for player in self.list_players:
-            player_id = player[0].id
-            tmp: dict = {
-                "player_id": player_id,
-                "player_score": player[1]
-            }
-            id_list_players.append(tmp)
+        if self.list_players is not None:
+            for player in self.list_players:
+                player_id = player[0].id
+                tmp: dict = {
+                    "player_id": player_id,
+                    "player_score": player[1]
+                }
+                id_list_players.append(tmp)
 
         tournament: dict = {
             "name": self.name,
@@ -53,7 +53,8 @@ class Tournament:
             "list_players": id_list_players,
             "time": self.time,
             "description": self.description,
-            "is_ongoing": self.is_ongoing
+            "is_ongoing": self.is_ongoing,
+            "current_turn": self.current_turn
         }
         return tournament
 
@@ -79,14 +80,14 @@ class Tournament:
             id=tournament_serialized.doc_id,
             description=tournament_serialized["description"],
             is_ongoing=tournament_serialized["is_ongoing"],
-            list_players=deserialized_list_players,
-            list_rounds=deserialized_list_rounds
+            current_turn=tournament_serialized["current_turn"]
 
         )
+        deserialized_tournament.list_players = deserialized_list_players
+        deserialized_tournament.list_rounds = deserialized_list_rounds
         return deserialized_tournament
 
     def sort_players_by_elo(self):
-        print(self.list_players)
         self.list_players.sort(key=lambda x: x[0].elo)
 
     def sort_players_by_score_and_elo(self):
@@ -96,7 +97,8 @@ class Tournament:
         self.list_players.sort(key=lambda x: x[1])
 
     def sort_player_by_name(self):
-        self.list_players.sort(key=lambda x: x[0].last_name)
+        if self.list_players is not None:
+            self.list_players.sort(key=lambda x: x[0].last_name)
 
     def update_player_score(self, player, score):
         index = self.get_index(player)

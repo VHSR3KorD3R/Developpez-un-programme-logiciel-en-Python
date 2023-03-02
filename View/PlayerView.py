@@ -37,3 +37,7 @@ class PlayerView:
         print()
         print("Le joueur est déja inscrit au tournoi")
         print()
+
+    def print_list_player(self, players):
+        for player in players:
+            print("prénom " + player["first_name"])

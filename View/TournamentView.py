@@ -2,6 +2,7 @@ from Controller import InputChecker as ic
 from datetime import date as da
 
 import os
+import pandas as pd
 
 
 class TournamentView:
@@ -90,3 +91,6 @@ class TournamentView:
         label = "Veuillez entrer le nombre correspondant au tournoi"
         return ic.check_number_input(label)
 
+    def print_tournament_list(self, tournaments):
+        df = pd.DataFrame(tournaments)
+        print(df)
