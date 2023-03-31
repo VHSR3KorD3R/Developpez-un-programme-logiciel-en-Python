@@ -2,6 +2,7 @@ import random
 from datetime import date as da
 
 from tinydb import Query
+import pandas as pd
 
 from Controller import db
 from Model import Tournament as to, Player as pl, Match as ma, Round as ro
@@ -262,3 +263,25 @@ class TournamentManager:
                     tournament_view.print_tournament_list(tournaments)
                 else:
                     print("pas de tournois crée")
+
+            elif choice == 6:
+                report_choice = self.view.print_reports()
+                if report_choice == 1:
+                    players = db.players().all()
+                    self.view.print_list_players(players)
+                elif report_choice == 2:
+                    tournaments = db.tournaments().all()
+                    choice = self.view.print_list_tournament(tournaments)
+                    table = pd.DataFrame(tournaments)
+                    #print(table[choice])
+                elif report_choice == 3:
+                    name = self.view.search_tournament()
+                    query = Query()
+                    list_tournament = db.tournaments().search(query.name == name)
+                    choice = self.view.print_list_tournament(list_tournament)
+                    tournament = to.Tournament.deserialize(list_tournament[choice])
+                    self.view.print_tournament(tournament)
+
+
+
+
