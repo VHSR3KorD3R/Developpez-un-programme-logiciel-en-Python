@@ -43,7 +43,6 @@ class Menu:
         table.drop(['list_rounds', 'list_players', 'turns', 'current_turn', 'is_ongoing'], axis=1, inplace=True)
         final_table = table.reset_index(drop=True)
         print(final_table)
-        return ic.check_number_input("choix: ")
 
     def search_tournament(self):
         print("Veuillez entrer un nom de tournoi:")

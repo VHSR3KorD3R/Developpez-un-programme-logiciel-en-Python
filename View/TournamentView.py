@@ -1,5 +1,6 @@
 from Controller import InputChecker as ic
 from datetime import date as da
+from Controller import TournamentManager
 
 import os
 import pandas as pd
@@ -94,3 +95,13 @@ class TournamentView:
     def print_tournament_list(self, tournaments):
         df = pd.DataFrame(tournaments)
         print(df)
+
+    def tournament_error(self, error_code):
+        match error_code:
+            case TournamentManager.NO_PLAYER_ERROR:
+                print("Pas de joueurs inscrits")
+            case TournamentManager.NOT_ENOUGH_PLAYERS:
+                print("Pas assez de joueurs inscrits")
+            case TournamentManager.MAX_PLAYERS_ERROR:
+                print("Nombre de joueurs max atteint")
+        input("appuyer sur entrée pour continuer")

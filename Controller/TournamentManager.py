@@ -9,6 +9,10 @@ from Model import Tournament as to, Player as pl, Match as ma, Round as ro
 from View.PlayerView import PlayerView
 from View.TournamentView import TournamentView
 
+NO_PLAYER_ERROR = 0
+NOT_ENOUGH_PLAYERS = 1
+MAX_PLAYERS_ERROR = 3
+
 
 class TournamentManager:
     def __init__(self, view):
@@ -133,7 +137,7 @@ class TournamentManager:
 
     def show_tournament_menu(self, list_players_static, tournament_view):
         choice = tournament_view.print_tournament_menu()
-        if choice == 1:
+        if choice == 1:  # Création d'un joueur
             player_view = PlayerView()
             player_info = player_view.create_player_menu()
             player = self.create_player(player_info)
@@ -142,14 +146,20 @@ class TournamentManager:
             list_players_static.append(player)
             return self.show_tournament_menu(list_players_static, tournament_view)
         elif choice == 2:
-            self.find_player_in_db()
-            return self.show_tournament_menu(list_players_static, tournament_view)
+            if len(self.tournament.list_players) < 8:
+                tournament_view.tournament_error(MAX_PLAYERS_ERROR)
+            else:
+                self.find_player_in_db()
+                return self.show_tournament_menu(list_players_static, tournament_view)
         elif choice == 3:
-            if self.tournament.list_players is not None:
+            if self.tournament.list_players is None or len(self.tournament.list_players) == 0:
+                tournament_view.tournament_error(NO_PLAYER_ERROR)
+            elif len(self.tournament.list_players) < 8:
+                tournament_view.tournament_error(NOT_ENOUGH_PLAYERS)
+            else:
                 self.tournament.sort_player_by_name()
                 tournament_view.print_ranking(self.tournament.list_players)
-            else:
-                print("pas de joueurs encore inscrit")
+
             return self.show_tournament_menu(list_players_static, tournament_view)
         elif choice == 4:
             nb_rounds = self.tournament.turns
@@ -273,7 +283,7 @@ class TournamentManager:
                     tournaments = db.tournaments().all()
                     choice = self.view.print_list_tournament(tournaments)
                     table = pd.DataFrame(tournaments)
-                    #print(table[choice])
+                    # print(table[choice])
                 elif report_choice == 3:
                     name = self.view.search_tournament()
                     query = Query()
@@ -281,7 +291,3 @@ class TournamentManager:
                     choice = self.view.print_list_tournament(list_tournament)
                     tournament = to.Tournament.deserialize(list_tournament[choice])
                     self.view.print_tournament(tournament)
-
-
-
-
