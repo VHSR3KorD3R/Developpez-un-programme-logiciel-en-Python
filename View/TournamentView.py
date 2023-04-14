@@ -2,7 +2,6 @@ from Controller import InputChecker as ic
 from datetime import date as da
 from Controller import TournamentManager
 
-import os
 import pandas as pd
 
 
@@ -104,4 +103,8 @@ class TournamentView:
                 print("Pas assez de joueurs inscrits")
             case TournamentManager.MAX_PLAYERS_ERROR:
                 print("Nombre de joueurs max atteint")
+            case TournamentManager.NO_TOURNAMENT_CREATED:
+                print("Pas de tournoi crée")
+            case TournamentManager.MAX_ROUND_ERROR:
+                print("Limite de round atteinte")
         input("appuyer sur entrée pour continuer")

@@ -1,7 +1,7 @@
 from Model import Round as ro, Player as pl
-from tinydb import Query
 
 from Controller import db
+
 
 class Tournament:
     def __init__(self,
@@ -125,4 +125,3 @@ class Tournament:
                 if player[0] == player_to_check:
                     return True
         return False
-

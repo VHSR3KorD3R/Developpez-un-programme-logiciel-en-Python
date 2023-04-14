@@ -1,5 +1,6 @@
 from Model import Match as ma
 
+
 class Round:
     def __init__(self, name, start_time, end_time=None, list_match=None):
         self.name = name
@@ -9,8 +10,8 @@ class Round:
 
     def __str__(self):
         return f"round_name : {self.name}\n" \
-               f"start_time: {self.start_time}\n" \
-               f"list_match : {self.list_match}\n"
+               f"start_time: {self.start_time}\n"
+               # f"list_match : {self.list_match}\n"
 
     def serialize(self):
         serialized_list_match = []

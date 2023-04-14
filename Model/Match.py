@@ -1,5 +1,7 @@
 from Controller import db
 from Model import Player as pl
+
+
 class Match:
     def __init__(self, player1=None, player2=None, player1_score=None, player2_score=None):
         self.player1 = player1

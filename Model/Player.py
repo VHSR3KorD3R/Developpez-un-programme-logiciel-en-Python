@@ -12,7 +12,6 @@ class Player:
         return f"first_name : {self.first_name}\n" \
                f"last_name: {self.last_name}\n" \
                f"birthdate: {self.birthdate}\n" \
-               f"id: {self.id}\n" \
                f"elo : {self.elo}\n"
 
     def __eq__(self, other):

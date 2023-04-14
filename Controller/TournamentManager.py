@@ -12,6 +12,8 @@ from View.TournamentView import TournamentView
 NO_PLAYER_ERROR = 0
 NOT_ENOUGH_PLAYERS = 1
 MAX_PLAYERS_ERROR = 3
+NO_TOURNAMENT_CREATED = 4
+MAX_ROUND_ERROR = 5
 
 
 class TournamentManager:
@@ -138,15 +140,24 @@ class TournamentManager:
     def show_tournament_menu(self, list_players_static, tournament_view):
         choice = tournament_view.print_tournament_menu()
         if choice == 1:  # Création d'un joueur
-            player_view = PlayerView()
-            player_info = player_view.create_player_menu()
-            player = self.create_player(player_info)
-            self.tournament.list_players.append([player, 0])
-            db.players().insert(player)
-            list_players_static.append(player)
+            if len(self.tournament.list_players) >= 8:
+                tournament_view.tournament_error(MAX_PLAYERS_ERROR)
+            else:
+                player_view = PlayerView()
+                player_info = player_view.create_player_menu()
+                player = self.create_player(player_info)
+                self.tournament.list_players.append([player, 0])
+                query = Query()
+                player_serialized = player.serialize()
+                db.players().insert(player_serialized)
+                player_serialized = db.players().get((query.last_name == player.last_name) & (query.first_name == player.first_name) & (query.birthdate == player.birthdate))
+                player.id = player_serialized.doc_id
+                db.players().update(player.serialize(), doc_ids=[player.id])
+                db.tournaments().update(self.tournament.serialize(), doc_ids=[self.tournament.id])
+                list_players_static.append(player)
             return self.show_tournament_menu(list_players_static, tournament_view)
         elif choice == 2:
-            if len(self.tournament.list_players) < 8:
+            if len(self.tournament.list_players) >= 8:
                 tournament_view.tournament_error(MAX_PLAYERS_ERROR)
             else:
                 self.find_player_in_db()
@@ -154,8 +165,8 @@ class TournamentManager:
         elif choice == 3:
             if self.tournament.list_players is None or len(self.tournament.list_players) == 0:
                 tournament_view.tournament_error(NO_PLAYER_ERROR)
-            elif len(self.tournament.list_players) < 8:
-                tournament_view.tournament_error(NOT_ENOUGH_PLAYERS)
+            # elif len(self.tournament.list_players) < 8:
+            #    tournament_view.tournament_error(NOT_ENOUGH_PLAYERS)
             else:
                 self.tournament.sort_player_by_name()
                 tournament_view.print_ranking(self.tournament.list_players)
@@ -163,7 +174,11 @@ class TournamentManager:
             return self.show_tournament_menu(list_players_static, tournament_view)
         elif choice == 4:
             nb_rounds = self.tournament.turns
-            if self.tournament.current_turn < nb_rounds:
+            if self.tournament.current_turn >= nb_rounds:
+                tournament_view.tournament_error(MAX_ROUND_ERROR)
+            elif len(self.tournament.list_players) < 8:
+                tournament_view.tournament_error(NOT_ENOUGH_PLAYERS)
+            else:
                 if self.tournament.current_turn == 0:
                     today = da.today()
                     date = today.strftime("%d/%m/%Y")
@@ -174,10 +189,12 @@ class TournamentManager:
                     date = today.strftime("%d/%m/%Y")
                     self.create_rounds("round " + str(self.tournament.current_turn + 1), date)
 
-            tournament_view.print_list_match(self.tournament.list_rounds[self.tournament.current_turn].list_match)
+                tournament_view.print_list_match(self.tournament.list_rounds[self.tournament.current_turn].list_match)
             return self.show_tournament_menu(list_players_static, tournament_view)
         elif choice == 5:
-            if self.tournament.list_rounds or self.tournament.current_turn == self.tournament.turns:
+            if self.tournament.current_turn >= 4:
+                tournament_view.tournament_error(MAX_ROUND_ERROR)
+            elif self.tournament.list_rounds and self.tournament.current_turn == self.tournament.turns:
                 for match in self.tournament.list_rounds[self.tournament.current_turn].list_match:
                     player1_fullname = match.player1.last_name + " " + match.player1.first_name
                     player2_fullname = match.player2.last_name + " " + match.player2.first_name
@@ -210,6 +227,10 @@ class TournamentManager:
                 if self.tournament.current_turn == self.tournament.turns:
                     self.tournament.is_ongoing = False
                 db.tournaments().update(self.tournament.serialize(), doc_ids=[self.tournament.id])
+                today = da.today()
+                date = today.strftime("%d/%m/%Y")
+                current_round = self.tournament.list_rounds[self.tournament.current_turn - 1]
+                current_round.end_time = date
             return self.show_tournament_menu(list_players_static, tournament_view)
 
         elif choice == 6:
@@ -245,34 +266,37 @@ class TournamentManager:
                 tournament_view = TournamentView()
                 query = Query()
                 tournament_list = db.tournaments().search(query.is_ongoing == True)
-                tournament_view.print_ongoing_tournament(tournament_list)
-                indice = tournament_view.get_tournament_indice()
-                tournament_selected = tournament_list[indice - 1]
-                self.tournament = to.Tournament.deserialize(tournament_selected)
-                print(self.tournament)
-                self.show_tournament_menu(list_players_static, tournament_view)
+                if len(tournament_list) > 0:
+                    tournament_view.print_ongoing_tournament(tournament_list)
+                    indice = tournament_view.get_tournament_indice()
+                    tournament_selected = tournament_list[indice - 1]
+                    self.tournament = to.Tournament.deserialize(tournament_selected)
+                    self.show_tournament_menu(list_players_static, tournament_view)
             elif choice == 3:
+                query = Query()
                 player_view = PlayerView()
                 player_info = player_view.create_player_menu()
                 player = self.create_player(player_info)
-                db.players().insert(player.serialize())
+                player_serialized = player.serialize()
+                db.players().insert(player_serialized)
+                db.players().update({'id': player_serialized.doc_id}, query.doc_id == player_serialized.doc_id)
                 list_players_static.append(player)
 
             elif choice == 4:
                 players = db.players().all()
-                if players is not None:
-                    player_view = PlayerView()
+                player_view = PlayerView()
+                if len(players) > 0:
                     player_view.print_list_player(players)
                 else:
-                    print("pas de joueurs crée")
+                    player_view.print_error()
 
             elif choice == 5:
                 tournaments = db.tournaments().all()
-                if tournaments is not None:
-                    tournament_view = TournamentView()
+                tournament_view = TournamentView()
+                if len(tournaments) > 0:
                     tournament_view.print_tournament_list(tournaments)
                 else:
-                    print("pas de tournois crée")
+                    tournament_view.tournament_error(NO_TOURNAMENT_CREATED)
 
             elif choice == 6:
                 report_choice = self.view.print_reports()
@@ -281,13 +305,13 @@ class TournamentManager:
                     self.view.print_list_players(players)
                 elif report_choice == 2:
                     tournaments = db.tournaments().all()
-                    choice = self.view.print_list_tournament(tournaments)
+                    self.view.print_list_tournament(tournaments)
                     table = pd.DataFrame(tournaments)
-                    # print(table[choice])
                 elif report_choice == 3:
                     name = self.view.search_tournament()
                     query = Query()
                     list_tournament = db.tournaments().search(query.name == name)
-                    choice = self.view.print_list_tournament(list_tournament)
+                    self.view.print_list_tournament(list_tournament)
+                    choice = self.view.chose_tournament()
                     tournament = to.Tournament.deserialize(list_tournament[choice])
                     self.view.print_tournament(tournament)

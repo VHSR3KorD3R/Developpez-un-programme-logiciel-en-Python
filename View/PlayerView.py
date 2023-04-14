@@ -41,3 +41,6 @@ class PlayerView:
     def print_list_player(self, players):
         for player in players:
             print("prénom " + player["first_name"])
+
+    def print_error(self):
+        print("Pas de joueurs crée")

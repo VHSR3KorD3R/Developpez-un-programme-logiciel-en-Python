@@ -2,11 +2,8 @@ import os
 
 import pandas as pd
 
-from tinydb import Query
-
 from Controller import InputChecker as ic
-from tabulate import tabulate
-import pandas
+
 
 class Menu:
 
@@ -37,12 +34,16 @@ class Menu:
         final_table = table.loc[:, ~table.columns.isin(['already_met', 'id'])].sort_values(by=['last_name'])
         final_table = final_table.reset_index(drop=True)
         print(final_table)
+
     def print_list_tournament(self, list_tournaments):
         table = pd.DataFrame(list_tournaments)
         #final_table = table.loc[:, ~table.columns.isin(['list_rounds', 'list_players', 'turns'])].sort_values(by=['name'])
         table.drop(['list_rounds', 'list_players', 'turns', 'current_turn', 'is_ongoing'], axis=1, inplace=True)
         final_table = table.reset_index(drop=True)
         print(final_table)
+
+    def chose_tournament(self):
+        return ic.check_number_input("choix: ")
 
     def search_tournament(self):
         print("Veuillez entrer un nom de tournoi:")
