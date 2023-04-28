@@ -16,8 +16,6 @@ class Match:
                f"player2_score: {self.player2_score}"
 
     def serialize(self):
-        print(self.player1)
-        print(self.player1.id)
         match: dict = {
             "player1": self.player1.id,
             "player2": self.player2.id,

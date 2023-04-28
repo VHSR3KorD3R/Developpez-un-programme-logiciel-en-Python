@@ -150,18 +150,20 @@ class TournamentManager:
                 query = Query()
                 player_serialized = player.serialize()
                 db.players().insert(player_serialized)
-                player_serialized = db.players().get((query.last_name == player.last_name) & (query.first_name == player.first_name) & (query.birthdate == player.birthdate))
+                player_serialized = db.players().get((query.last_name == player.last_name) &
+                                                     (query.first_name == player.first_name) &
+                                                     (query.birthdate == player.birthdate))
                 player.id = player_serialized.doc_id
                 db.players().update(player.serialize(), doc_ids=[player.id])
                 db.tournaments().update(self.tournament.serialize(), doc_ids=[self.tournament.id])
                 list_players_static.append(player)
             return self.show_tournament_menu(list_players_static, tournament_view)
-        elif choice == 2:
+        elif choice == 2:  # Ajouter un joueur
             if len(self.tournament.list_players) >= 8:
                 tournament_view.tournament_error(MAX_PLAYERS_ERROR)
             else:
                 self.find_player_in_db()
-                return self.show_tournament_menu(list_players_static, tournament_view)
+            return self.show_tournament_menu(list_players_static, tournament_view)
         elif choice == 3:
             if self.tournament.list_players is None or len(self.tournament.list_players) == 0:
                 tournament_view.tournament_error(NO_PLAYER_ERROR)
@@ -188,13 +190,13 @@ class TournamentManager:
                     today = da.today()
                     date = today.strftime("%d/%m/%Y")
                     self.create_rounds("round " + str(self.tournament.current_turn + 1), date)
-
-                tournament_view.print_list_match(self.tournament.list_rounds[self.tournament.current_turn].list_match)
+                tournament_view.print_list_match2(self.tournament.list_rounds[self.tournament.current_turn].list_match)
+                #tournament_view.print_list_match(self.tournament.list_rounds[self.tournament.current_turn].list_match)
             return self.show_tournament_menu(list_players_static, tournament_view)
         elif choice == 5:
             if self.tournament.current_turn >= 4:
                 tournament_view.tournament_error(MAX_ROUND_ERROR)
-            elif self.tournament.list_rounds and self.tournament.current_turn == self.tournament.turns:
+            elif len(self.tournament.list_rounds) != 0 or self.tournament.current_turn == self.tournament.turns:
                 for match in self.tournament.list_rounds[self.tournament.current_turn].list_match:
                     player1_fullname = match.player1.last_name + " " + match.player1.first_name
                     player2_fullname = match.player2.last_name + " " + match.player2.first_name
@@ -226,11 +228,11 @@ class TournamentManager:
                 self.tournament.current_turn += 1
                 if self.tournament.current_turn == self.tournament.turns:
                     self.tournament.is_ongoing = False
-                db.tournaments().update(self.tournament.serialize(), doc_ids=[self.tournament.id])
                 today = da.today()
                 date = today.strftime("%d/%m/%Y")
                 current_round = self.tournament.list_rounds[self.tournament.current_turn - 1]
                 current_round.end_time = date
+                db.tournaments().update(self.tournament.serialize(), doc_ids=[self.tournament.id])
             return self.show_tournament_menu(list_players_static, tournament_view)
 
         elif choice == 6:
@@ -261,14 +263,15 @@ class TournamentManager:
                 #     self.tournament.list_players.append([player, 0])
                 tournament_id = db.tournaments().insert(self.tournament.serialize())
                 self.tournament.id = tournament_id
+                tournament_view.print_tournament_created()
                 self.show_tournament_menu(list_players_static, tournament_view)
             elif choice == 2:
                 tournament_view = TournamentView()
                 query = Query()
-                tournament_list = db.tournaments().search(query.is_ongoing == True)
+                tournament_list = db.tournaments().search(query.is_ongoing == 1)
                 if len(tournament_list) > 0:
                     tournament_view.print_ongoing_tournament(tournament_list)
-                    indice = tournament_view.get_tournament_indice()
+                    indice = tournament_view.get_tournament_indice(len(tournament_list))
                     tournament_selected = tournament_list[indice - 1]
                     self.tournament = to.Tournament.deserialize(tournament_selected)
                     self.show_tournament_menu(list_players_static, tournament_view)
@@ -281,7 +284,9 @@ class TournamentManager:
                 db.players().insert(player_serialized)
                 db.players().update({'id': player_serialized.doc_id}, query.doc_id == player_serialized.doc_id)
                 list_players_static.append(player)
-
+                tournament_view = TournamentView()
+                player_view.print_player_created()
+                self.show_tournament_menu(list_players_static, tournament_view)
             elif choice == 4:
                 players = db.players().all()
                 player_view = PlayerView()
@@ -306,7 +311,7 @@ class TournamentManager:
                 elif report_choice == 2:
                     tournaments = db.tournaments().all()
                     self.view.print_list_tournament(tournaments)
-                    table = pd.DataFrame(tournaments)
+                    pd.DataFrame(tournaments)
                 elif report_choice == 3:
                     name = self.view.search_tournament()
                     query = Query()
@@ -314,4 +319,4 @@ class TournamentManager:
                     self.view.print_list_tournament(list_tournament)
                     choice = self.view.chose_tournament()
                     tournament = to.Tournament.deserialize(list_tournament[choice])
-                    self.view.print_tournament(tournament)
+                    self.view.print_tournament(list_tournament[choice])

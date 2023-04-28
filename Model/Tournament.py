@@ -94,7 +94,7 @@ class Tournament:
         self.list_players.sort(key=lambda t: (t[1], t[0].elo))
 
     def sort_player_by_score(self):
-        self.list_players.sort(key=lambda x: x[1])
+        self.list_players.sort(key=lambda x: x[1], reverse=True)
 
     def sort_player_by_name(self):
         if self.list_players is not None:

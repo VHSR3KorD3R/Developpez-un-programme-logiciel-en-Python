@@ -34,3 +34,13 @@ def check_yes_no_input(label):
         return letter
     print("soit 'O' soit 'N'")
     return check_yes_no_input(label)
+
+
+def check_time_control(label):
+    time_control = input(label)
+    time_control_list = ["bullet", "blitz", "coup rapide"]
+    if time_control not in time_control_list:
+        print("Mauvais choix du contrôle du temps (un bullet, un blitz ou un coup rapide)")
+        return check_time_control(label)
+    else:
+        return time_control

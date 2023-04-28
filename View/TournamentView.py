@@ -12,7 +12,7 @@ class TournamentView:
         today = da.today()
         date = today.strftime("%d/%m/%Y")
         turns = ic.check_number_input("nombre de rounds: ")
-        time = ic.check_user_input("Controle du temps: ")
+        time = ic.check_time_control("Controle du temps: ")
         description = ic.check_user_input("Description: ")
         return {"name": name,
                 "location": location,
@@ -23,13 +23,14 @@ class TournamentView:
                 }
 
     def print_tournament_menu(self):
-        print("[1] créer un joueur")
-        print("[2] chercher un joueur")
-        print("[3] afficher la liste des inscris au tournoi")
-        print("[4] créer un round")
-        print("[5] saisir les résultats du round en cours")
-        print("[6] voir le classment")
-        print("[0] sortir")
+        print("Menu tournoi")
+        print("[1] Créer un nouveau joueur à inscrire")
+        print("[2] Inscrire un joueur")
+        print("[3] Afficher la liste des inscris au tournoi")
+        print("[4] Créer un tour")
+        print("[5] Saisir les résultats du tour en cours")
+        print("[6] Voir le classment")
+        print("[0] Sortir")
 
         return ic.check_number_input("choix: ")
 
@@ -76,6 +77,11 @@ class TournamentView:
         print(players2_scores)
         print("\n")
 
+    def print_list_match2(self, list_match):
+        df = pd.DataFrame(list_match)
+        final_table = df.reset_index(drop=True)
+        print(final_table)
+
     def print_ranking(self, list_player):
         for player in list_player:
             print(player[0])
@@ -87,9 +93,14 @@ class TournamentView:
             print("[" + str(i) + "]" + str(tournament["name"]))
             i += 1
 
-    def get_tournament_indice(self):
-        label = "Veuillez entrer le nombre correspondant au tournoi"
-        return ic.check_number_input(label)
+    def get_tournament_indice(self, tournament_length):
+        label = "Veuillez entrer le nombre correspondant au tournoi: "
+        choice = ic.check_number_input(label)
+        if int(tournament_length) >= choice > 0:
+            return choice
+        else:
+            print("Veuillez entrer un chiffre entre 1 et " + str(tournament_length))
+            return self.get_tournament_indice(tournament_length)
 
     def print_tournament_list(self, tournaments):
         df = pd.DataFrame(tournaments)
@@ -108,3 +119,6 @@ class TournamentView:
             case TournamentManager.MAX_ROUND_ERROR:
                 print("Limite de round atteinte")
         input("appuyer sur entrée pour continuer")
+
+    def print_tournament_created(self):
+        print("Tournoi crée")
