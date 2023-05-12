@@ -1,9 +1,8 @@
 import pandas as pd
 
 from Controller import InputChecker as ic
-from tabulate import tabulate
-from tinydb import Query
 from Controller import db
+
 
 class Menu:
 
@@ -26,24 +25,41 @@ class Menu:
         print("[1] Liste des joueurs")
         print("[2] Liste des tournois")
         print("[3] Chercher un tournoi")
-        print("[4] Afficher les informations d'un tournoi")
+        # print("[4] Afficher les informations d'un tournoi")
 
         choice = ic.check_number_input("choix: ")
         if int(choice) > 4:
             self.print_menu()
         return choice
 
+    def print_choice_reports(self):
+        print("[1] Afficher la liste des joueurs du tournoi")
+        print("[2] Afficher la liste des matchs de chacun des rounds")
+        print("[3] Afficher les informations du tournoi")
+
+        choice = ic.check_number_input("choix: ")
+        if int(choice) > 3:
+            self.print_menu()
+        return choice
+
     def print_list_players(self, list_players):
         table = pd.DataFrame(list_players)
-        final_table = table.loc[:, ~table.columns.isin(['already_met', 'id'])].sort_values(by=['last_name'])
+        if 'score' in table.columns:
+            final_table = table.loc[:, ~table.columns.isin(['already_met', 'id'])]\
+                .sort_values(by=['score'], ascending=False)
+        else:
+            final_table = table.loc[:, ~table.columns.isin(['already_met', 'id'])].sort_values(by=['last_name'])
         final_table = final_table.reset_index(drop=True)
+        print("Liste des joueurs")
         print(final_table)
+        input("appuyer sur entrée pour continuer")
 
     def print_list_tournament(self, list_tournaments):
         table = pd.DataFrame(list_tournaments)
         table.drop(['list_rounds', 'list_players', 'turns', 'current_turn', 'is_ongoing'], axis=1, inplace=True)
         final_table = table.reset_index(drop=True)
         print(final_table)
+        input("appuyer sur entrée pour continuer")
 
     def chose_tournament(self):
         return ic.check_number_input("choix: ")
@@ -59,9 +75,9 @@ class Menu:
         table.drop(['list_match'], axis=1, inplace=True)
         final_table = table.reset_index(drop=True)
         list_match = []
-        #print(final_table)
+        # print(final_table)
         for round in list_rounds:
-            #list_match.append(round.get('list_match'))
+            # list_match.append(round.get('list_match'))
             list_match = round.get('list_match')
             table = pd.DataFrame(list_match)
             list_match = table.reset_index(drop=True)
@@ -80,5 +96,5 @@ class Menu:
                 i += 1
             print(round['name'])
             print(list_match)
-            #print(list_match)
-
+            input("appuyer sur entrée pour continuer")
+            # print(list_match)

@@ -46,7 +46,6 @@ class PlayerView:
         final_table = final_table.reset_index(drop=True)
         print(final_table)
 
-
     def print_error(self):
         print("Pas de joueurs crée")
 

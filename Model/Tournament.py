@@ -88,10 +88,10 @@ class Tournament:
         return deserialized_tournament
 
     def sort_players_by_elo(self):
-        self.list_players.sort(key=lambda x: x[0].elo)
+        self.list_players.sort(key=lambda x: x[0].elo, reverse=True)
 
     def sort_players_by_score_and_elo(self):
-        self.list_players.sort(key=lambda t: (t[1], t[0].elo))
+        self.list_players.sort(key=lambda t: (t[1], t[0].elo), reverse=True)
 
     def sort_player_by_score(self):
         self.list_players.sort(key=lambda x: x[1], reverse=True)

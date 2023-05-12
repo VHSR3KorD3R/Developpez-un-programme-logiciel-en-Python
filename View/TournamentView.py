@@ -1,8 +1,11 @@
 from Controller import InputChecker as ic
 from datetime import date as da
 from Controller import TournamentManager
+from Controller import db
 
 import pandas as pd
+from tinydb import Query
+
 
 
 class TournamentView:
@@ -78,14 +81,31 @@ class TournamentView:
         print("\n")
 
     def print_list_match2(self, list_match):
-        df = pd.DataFrame(list_match)
-        final_table = df.reset_index(drop=True)
+        turn_list_match = []
+        for match in list_match:
+            match_serialized = match.serialize()
+            match_serialized['player1'] = match.player1.first_name + " " + match.player1.last_name
+            match_serialized['player2'] = match.player2.first_name + " " + match.player2.last_name
+            turn_list_match.append(match_serialized)
+        df = pd.DataFrame(turn_list_match)
+        table = df.loc[:, ~df.columns.isin(['player1_score', 'player2_score'])]
+        final_table = table.reset_index(drop=True)
+        print("Liste des matchs du round")
         print(final_table)
+        input("appuyer sur entrée pour continuer")
 
     def print_ranking(self, list_player):
-        for player in list_player:
-            print(player[0])
-            print("score: " + str(player[1]))
+        list_player_serialized = []
+        for player, score in list_player:
+            player_serialized = player.serialize()
+            player_serialized["score"] = score
+            list_player_serialized.append(player_serialized)
+        df = pd.DataFrame(list_player_serialized)
+        table = df.loc[:, ~df.columns.isin(['already_met', 'id'])].sort_values(by=['last_name'])
+        final_table = table.reset_index(drop=True)
+        print("Liste des joueurs inscrit au tournoi")
+        print(final_table)
+        input("appuyer sur entrée pour continuer")
 
     def print_ongoing_tournament(self, list_ongoing_tournament):
         i = 1
@@ -105,6 +125,7 @@ class TournamentView:
     def print_tournament_list(self, tournaments):
         df = pd.DataFrame(tournaments)
         print(df)
+        input("appuyer sur entrée pour continuer")
 
     def tournament_error(self, error_code):
         match error_code:

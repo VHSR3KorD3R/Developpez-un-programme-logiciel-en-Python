@@ -3,6 +3,7 @@ from datetime import date as da
 
 from tinydb import Query
 import pandas as pd
+from tabulate import tabulate
 
 from Controller import db
 from Model import Tournament as to, Player as pl, Match as ma, Round as ro
@@ -64,10 +65,10 @@ class TournamentManager:
         while i < len(self.tournament.list_players) - 1:
             j = i
             while j < len(self.tournament.list_players) - 1:
-                if self.tournament.list_players[i][0] in list_players_matched and i < len(
+                if self.tournament.list_players[i][0].id in list_players_matched and i < len(
                         self.tournament.list_players) - 2:
                     i += 1
-                if (self.tournament.list_players[j + 1][0] in list_players_matched or
+                if (self.tournament.list_players[j + 1][0].id in list_players_matched or
                     self.tournament.list_players[i][0] == self.tournament.list_players[j + 1][0]) and j < \
                         len(self.tournament.list_players) - 2:
                     j += 1
@@ -76,12 +77,27 @@ class TournamentManager:
                     self.tournament.list_players[i][0].already_met.append(self.tournament.list_players[j + 1][0])
                     self.tournament.list_players[j + 1][0].already_met.append(self.tournament.list_players[i][0])
                     list_match.append(match)
-                    list_players_matched.append(self.tournament.list_players[i][0])
-                    list_players_matched.append(self.tournament.list_players[j + 1][0])
+                    list_players_matched.append(self.tournament.list_players[i][0].id)
+                    list_players_matched.append(self.tournament.list_players[j + 1][0].id)
                     break
                 else:
                     j += 1
             i += 1
+        if self.tournament.list_players[6][0] in self.tournament.list_players[7][0].already_met and\
+                len(self.tournament.list_rounds) == 3 and len(list_match) == 3:
+            if list_match[2].player1 not in self.tournament.list_players[6][0].already_met \
+                    and list_match[2].player2 not in self.tournament.list_players[7][0].already_met:
+                list_match.pop(2)
+                if list_match[2].player1 != self.tournament.list_players[6][0] and\
+                        list_match[2].player1 not in self.tournament.list_players[6][0] and\
+                        list_match[2].player2 != self.tournament.list_players[7][0] and\
+                        list_match[2].player2 not in self.tournament.list_players[7][0].already_met:
+                    match1 = ma.Match(list_match[2].player1, self.tournament.list_players[6][0], 0,
+                                      0)
+                    match2 = ma.Match(list_match[2].player2, self.tournament.list_players[7][0], 0,
+                                      0)
+                    list_match.append(match1)
+                    list_match.append(match2)
         n_round.list_match = list_match
         self.tournament.list_rounds.append(n_round)
 
@@ -191,7 +207,7 @@ class TournamentManager:
                     date = today.strftime("%d/%m/%Y")
                     self.create_rounds("round " + str(self.tournament.current_turn + 1), date)
                 tournament_view.print_list_match2(self.tournament.list_rounds[self.tournament.current_turn].list_match)
-                #tournament_view.print_list_match(self.tournament.list_rounds[self.tournament.current_turn].list_match)
+                # tournament_view.print_list_match(self.tournament.list_rounds[self.tournament.current_turn].list_match)
             return self.show_tournament_menu(list_players_static, tournament_view)
         elif choice == 5:
             if self.tournament.current_turn >= 4:
@@ -213,7 +229,7 @@ class TournamentManager:
                         match.player1_score = 0
                         match.player2_score = 1
                         for player in self.tournament.list_players:
-                            if player[0] == match.player1:
+                            if player[0] == match.player2:
                                 player[1] += 1
                                 break
 
@@ -223,7 +239,7 @@ class TournamentManager:
                         for player in self.tournament.list_players:
                             if player[0] == match.player1:
                                 player[1] += 0.5
-                            elif player[1] == match.player2:
+                            elif player[0] == match.player2:
                                 player[1] += 0.5
                 self.tournament.current_turn += 1
                 if self.tournament.current_turn == self.tournament.turns:
@@ -236,7 +252,7 @@ class TournamentManager:
             return self.show_tournament_menu(list_players_static, tournament_view)
 
         elif choice == 6:
-            self.tournament.sort_player_by_score()
+            self.tournament.sort_players_by_score_and_elo()
             tournament_view.print_ranking(self.tournament.list_players)
             return self.show_tournament_menu(list_players_static, tournament_view)
 
@@ -315,8 +331,19 @@ class TournamentManager:
                 elif report_choice == 3:
                     name = self.view.search_tournament()
                     query = Query()
-                    list_tournament = db.tournaments().search(query.name == name)
+                    list_tournament = db.tournaments().search(query.name.search(name))
                     self.view.print_list_tournament(list_tournament)
-                    choice = self.view.chose_tournament()
-                    tournament = to.Tournament.deserialize(list_tournament[choice])
-                    self.view.print_tournament(list_tournament[choice])
+                    choice_tournament = self.view.chose_tournament()
+                    # tournament = to.Tournament.deserialize(list_tournament[choice])
+                    choice_report = self.view.print_choice_reports()
+                    if choice_report == 1:
+                        list_players = list_tournament[choice_tournament]["list_players"]
+                        players = []
+                        for player_serialized in list_players:
+                            player = db.players().get(doc_id=player_serialized["player_id"])
+                            player["score"] = player_serialized["player_score"]
+                            players.append(player)
+                        self.view.print_list_players(players)
+                    elif choice_report == 2:
+                        self.view.print_tournament(list_tournament[choice_tournament])
+
