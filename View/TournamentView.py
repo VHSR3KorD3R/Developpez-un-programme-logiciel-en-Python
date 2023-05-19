@@ -1,11 +1,8 @@
 from Controller import InputChecker as ic
 from datetime import date as da
 from Controller import TournamentManager
-from Controller import db
 
 import pandas as pd
-from tinydb import Query
-
 
 
 class TournamentView:
@@ -49,37 +46,6 @@ class TournamentView:
         else:
             self.print_round_editor(player1_name, player1_name)
 
-    def print_list_match(self, list_match):
-        players1 = ""
-        players2 = ""
-        players1_scores = ""
-        players2_scores = ""
-        for match in list_match:
-            player1, player2, player1_score, player2_score = match.__str__().split("\n")
-            players1 += player1 + "."
-            players2 += player2 + "."
-
-        max_player1_length = max(map(len, players1.strip().split(".")))
-        max_player2_length = max(map(len, players2.strip().split(".")))
-
-        max_length = max(max_player1_length, max_player2_length)
-        players1 = ""
-        players2 = ""
-
-        for match in list_match:
-            player1, player2, player1_score, player2_score = match.__str__().split("\n")
-            players1 += player1 + "\t\t" + (" " * (max_length - len(player1)))
-            players2 += player2 + "\t\t" + (" " * (max_length - len(player2)))
-            players1_scores += player1_score + "\t\t" + (" " * (max_length - len(player1_score)))
-            players2_scores += player2_score + "\t\t" + (" " * (max_length - len(player2_score)))
-
-        print("\n")
-        print(players1)
-        print(players2)
-        print(players1_scores)
-        print(players2_scores)
-        print("\n")
-
     def print_list_match2(self, list_match):
         turn_list_match = []
         for match in list_match:
@@ -102,7 +68,8 @@ class TournamentView:
             list_player_serialized.append(player_serialized)
         df = pd.DataFrame(list_player_serialized)
         table = df.loc[:, ~df.columns.isin(['already_met', 'id'])].sort_values(by=['last_name'])
-        final_table = table.reset_index(drop=True)
+        table = table.reset_index(drop=True)
+        final_table = table.sort_values(by=['score', 'elo'], ascending=False)
         print("Liste des joueurs inscrit au tournoi")
         print(final_table)
         input("appuyer sur entrée pour continuer")
@@ -143,3 +110,6 @@ class TournamentView:
 
     def print_tournament_created(self):
         print("Tournoi crée")
+
+    def print_round_created(self):
+        print("Round crée")

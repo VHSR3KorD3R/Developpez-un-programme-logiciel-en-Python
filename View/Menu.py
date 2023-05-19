@@ -73,9 +73,7 @@ class Menu:
         list_rounds = tournament.get('list_rounds')
         table = pd.DataFrame(list_rounds)
         table.drop(['list_match'], axis=1, inplace=True)
-        final_table = table.reset_index(drop=True)
-        list_match = []
-        # print(final_table)
+        # final_table = table.reset_index(drop=True)
         for round in list_rounds:
             # list_match.append(round.get('list_match'))
             list_match = round.get('list_match')
@@ -98,3 +96,9 @@ class Menu:
             print(list_match)
             input("appuyer sur entrée pour continuer")
             # print(list_match)
+
+    def print_tournament_info(self, tournament):
+        table = pd.DataFrame.from_dict(tournament, orient='index')
+        table.drop(['list_rounds', 'list_players', 'turns', 'current_turn', 'is_ongoing'], inplace=True)
+        table = table.transpose()
+        print(table)
