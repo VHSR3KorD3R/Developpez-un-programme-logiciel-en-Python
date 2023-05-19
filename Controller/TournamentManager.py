@@ -23,10 +23,6 @@ class TournamentManager:
         self.current_turn = 0
         self.static_list_players = self.create_list_players()
 
-    def create_tournament(self, name, location, date, turns, time, description):
-        self.tournament = to.Tournament(name, location, date, turns, time, description)
-        self.create_list_players()
-
     def create_list_players(self):
         list_players = []
         for i in range(7):

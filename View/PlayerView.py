@@ -54,4 +54,3 @@ class PlayerView:
 
     def print_player_added(self):
         print("Joueur ajouté au tournoi")
-
