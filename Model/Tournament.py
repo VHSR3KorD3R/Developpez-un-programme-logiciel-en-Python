@@ -104,6 +104,7 @@ class Tournament:
         index = self.get_index(player)
         self.list_players[index][1] += score
 
+    # get player
     def get_index(self, target):
         for index, x in enumerate(self.list_players):
             if x[0] == target:

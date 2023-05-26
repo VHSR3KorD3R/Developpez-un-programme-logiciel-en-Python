@@ -2,14 +2,16 @@ import re
 from datetime import datetime
 
 
+# check if characters entered are not special
 def check_user_input(label):
     string = input(label)
     if not bool(re.match('^[0-9a-zA-Z ]*$', string)) or string == '':
-        print("la chaîne de caractères contient des chiffres ou des caratères spéciaux")
+        print("la chaîne de caractères contient des caratères spéciaux")
         return check_user_input(label)
     return string
 
 
+# check that the characters in a date format dd/mm/yyyy
 def check_date_input(label):
     date = input(label)
     try:
@@ -20,6 +22,7 @@ def check_date_input(label):
         return check_date_input(label)
 
 
+# check that the characters entered are numbers
 def check_number_input(label):
     number = input(label)
     if not bool(re.match('^[0-9]*$', number)) or number == '':
@@ -28,6 +31,7 @@ def check_number_input(label):
     return int(number)
 
 
+# check that the characters are o or n
 def check_yes_no_input(label):
     letter = input(label)
     if letter == 'o' or letter == 'n':
@@ -36,6 +40,7 @@ def check_yes_no_input(label):
     return check_yes_no_input(label)
 
 
+# check that the characters are in "bullet", "blitz", "coup rapide"
 def check_time_control(label):
     time_control = input(label)
     time_control_list = ["bullet", "blitz", "coup rapide"]

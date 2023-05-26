@@ -49,7 +49,8 @@ class TournamentManager:
             player2.already_met.append(player1)
             list_match.append(match)
         first_round.list_match = list_match
-        self.tournament.list_rounds.append(first_round)
+        if len(self.tournament.list_rounds) > 0:
+            self.tournament.list_rounds.append(first_round)
 
     def create_rounds(self, name, start_time):
         self.tournament.sort_players_by_score_and_elo()
@@ -60,13 +61,16 @@ class TournamentManager:
         while i < len(self.tournament.list_players) - 1:
             j = i
             while j < len(self.tournament.list_players) - 1:
+                # test if the player has already a match set up we pass the player
                 if self.tournament.list_players[i][0].id in list_players_matched and i < len(
                         self.tournament.list_players) - 2:
                     i += 1
+                # test if the player has already a match set up we pass the player
                 if (self.tournament.list_players[j + 1][0].id in list_players_matched or
                     self.tournament.list_players[i][0] == self.tournament.list_players[j + 1][0]) and j < \
                         len(self.tournament.list_players) - 2:
                     j += 1
+                # if the player did not met the other player during the previous round we create match
                 if self.tournament.list_players[i][0] not in self.tournament.list_players[j + 1][0].already_met and \
                         len(list_match) <= 3:
                     match = ma.Match(self.tournament.list_players[i][0], self.tournament.list_players[j + 1][0], 0, 0)
@@ -79,6 +83,8 @@ class TournamentManager:
                 else:
                     j += 1
             i += 1
+        # in the case where the two last player of the list already met we change the third and fourth match of the
+        # round
         if self.tournament.list_players[6][0] in self.tournament.list_players[7][0].already_met and\
                 len(self.tournament.list_rounds) == 3 and len(list_match) == 3:
             if list_match[2].player1 not in self.tournament.list_players[6][0].already_met \
@@ -105,6 +111,7 @@ class TournamentManager:
                            player_info["elo"])
         return player
 
+    # old method to find player in the list players
     def find_player(self, list_players):
         player_view = PlayerView()
         last_name = player_view.search_for_player()
@@ -125,6 +132,7 @@ class TournamentManager:
             else:
                 self.tournament.list_players.append([player_selected, 0])
 
+    # new method to find player in the database aka the json file
     def find_player_in_db(self):
         player_view = PlayerView()
         last_name = player_view.search_for_player()
@@ -183,6 +191,7 @@ class TournamentManager:
             self.tournament.sort_player_by_name()
             tournament_view.print_ranking(self.tournament.list_players)
 
+    #does not actually print the round
     def print_round(self, tournament_view):
         nb_rounds = self.tournament.turns
         if self.tournament.current_turn >= nb_rounds:
@@ -200,7 +209,7 @@ class TournamentManager:
                 date = today.strftime("%d/%m/%Y")
                 self.create_rounds("round " + str(self.tournament.current_turn + 1), date)
             tournament_view.print_list_match2(self.tournament.list_rounds[self.tournament.current_turn].list_match)
-        self.view.print_round_created()
+        tournament_view.print_round_created()
 
     def enter_round_results(self, tournament_view):
         if self.tournament.current_turn >= 4:
@@ -241,6 +250,7 @@ class TournamentManager:
             current_round.end_time = date
             db.tournaments().update(self.tournament.serialize(), doc_ids=[self.tournament.id])
 
+    # does not actually print the rank
     def print_players_rank(self, tournament_view):
         self.tournament.sort_players_by_score_and_elo()
         tournament_view.print_ranking(self.tournament.list_players)
