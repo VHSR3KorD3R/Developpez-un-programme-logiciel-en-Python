@@ -3,6 +3,9 @@ Ce projet vise à coder un outil permettant de gérer des tournois d'échecs en 
 
 ## Installation
 ```bash
+# Créer un répertoire local dans lequel on installera l'application
+cd /home/<nom d'utilisateur>/<nouveau repertoire>
+
 # Creer l'environnement virtuel
 python -m venv env
 source env/bin/activate
