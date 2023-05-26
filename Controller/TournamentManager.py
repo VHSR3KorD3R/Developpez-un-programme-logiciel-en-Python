@@ -257,25 +257,25 @@ class TournamentManager:
 
     def show_tournament_menu(self, tournament_view):
         choice = tournament_view.print_tournament_menu()
-        if choice == 1:  # Création d'un joueur
+        if choice == 1:  # Create player
             self.create_player_menu(tournament_view)
             return self.show_tournament_menu(tournament_view)
-        elif choice == 2:  # Ajouter un joueur
+        elif choice == 2:  # Add player
             self.add_player_to_tournament(tournament_view)
             return self.show_tournament_menu(tournament_view)
-        elif choice == 3:
+        elif choice == 3:  # Print list player
             self.print_list_player(tournament_view)
             return self.show_tournament_menu(tournament_view)
-        elif choice == 4:
+        elif choice == 4:  # Create round
             self.print_round(tournament_view)
             return self.show_tournament_menu(tournament_view)
-        elif choice == 5:
+        elif choice == 5:  # Write results
             self.enter_round_results(tournament_view)
             return self.show_tournament_menu(tournament_view)
-        elif choice == 6:
+        elif choice == 6:  # Show results
             self.print_players_rank(tournament_view)
             return self.show_tournament_menu(tournament_view)
-        elif choice == 0:
+        elif choice == 0:  # Exit
             db.tournaments().update(self.tournament.serialize(), doc_ids=[self.tournament.id])
             return 0
 
