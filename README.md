@@ -14,18 +14,18 @@ python -m venv env
 source env/bin/activate
 ```
 
-# cloner le projet
+# Cloner le projet
 ```bash
 git clone https://github.com/VHSR3KorD3R/Developpez-un-programme-logiciel-en-Python.git
 cd Developpez-un-programme-logiciel-en-Python
 ```
 
-# installer les dépendances
+# Installer les dépendances
 ```bash
 pip install -r requirements.txt
 ```
 
-# executer le programme
+# Executer le programme
 ```bash
 python main.py
 ```
